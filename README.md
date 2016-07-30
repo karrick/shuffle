@@ -6,8 +6,8 @@ shuffle randomizes a line delimited stream.
 
 ### Standard input and output
 
-  shuffle < file1 > file2
+    shuffle < file1 > file2
 
 ### Modify source file
 
-  shuffle file
+    shuffle file
