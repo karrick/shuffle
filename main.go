@@ -6,20 +6,48 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/karrick/golf"
 )
 
 func main() {
-	var err error
-	if len(os.Args) > 1 {
-		err = file(os.Args[1])
-	} else {
-		err = standard()
+	optHelp := golf.BoolP('h', "help", false, "Print usage information then exit")
+	golf.Parse()
+
+	if *optHelp {
+		fmt.Fprintf(os.Stderr, "%s [file1 [file2 [fileN ...]]]\n", filepath.Base(os.Args[0]))
+		if *optHelp {
+			fmt.Fprintln(os.Stderr, "        randomizes a line delimited stream.\n")
+			fmt.Fprintln(os.Stderr, "Without filename arguments this reads and shuffles standard input and writes to\nstandard output. With filename arguments, each file is read, shuffled, and\nre-written individually.\n")
+			golf.Usage()
+		}
+		exit(nil)
 	}
+
+	if golf.NArg() == 0 {
+		exit(standard())
+	}
+
+	var rerr error
+	for _, pathname := range golf.Args() {
+		if err := file(pathname); err != nil {
+			if rerr == nil {
+				rerr = err
+			}
+			fmt.Fprintf(os.Stderr, "WARNING: shuffle cannot process: %q: %s", pathname, err)
+		}
+	}
+	exit(rerr)
+}
+
+func exit(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
+		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
 		os.Exit(1)
 	}
+	os.Exit(0)
 }
 
 func file(pathname string) error {

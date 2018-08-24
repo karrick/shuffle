@@ -8,6 +8,6 @@ shuffle randomizes a line delimited stream.
 
     shuffle < file1 > file2
 
-### Modify source file
+### Modify one or more source files
 
-    shuffle file
+    shuffle [file1 [file2 [fileN ...]]]
